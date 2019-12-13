@@ -1,0 +1,72 @@
+version: '3'
+services:
+    web:
+        image: nginx
+        container_name: "nginx"
+        hostname: "nginx"
+    redis:
+        image: redis
+        container_name: "redis"
+        hostname: "redis"
+        ports: 
+            - "6379:6379"
+    consul:
+        image: consul
+        container_name: "consul"
+        hostname: "consul"
+        ports:
+            - "8300:8300" 
+            - "8301:8301"
+            - "8500:8500"
+            - "8502:8502"
+            - "8600:8600"
+            - "8600:8600/udp"
+        labels: 
+            - "traefik.http.routers.consul.rule=Host(`consul.docker`)"
+            - "traefik.http.routers.consul.entrypoints=web"
+            - "traefik.http.services.consul.loadbalancer.server.port=8500"
+    traefik:
+        image: "traefik"
+        container_name: "traefik"
+        hostname: "traefik"
+        command:
+            - "--log.level=DEBUG"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=true"
+            - "--entrypoints.web.address=:80"
+            - "--api.insecure=true"
+        ports:
+            - "80:80"
+            - "8080:8080"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    
+    portainer:
+        image: portainer/portainer
+        container_name: "portainer"
+        hostname: "portainer"
+        restart: always
+        ports: 
+            - "8000:8000"
+            - "9000:9000"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - portainer_data:/data
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.portainer.rule=Host(`portainer.docker`)"
+            - "traefik.http.routers.portainer.entrypoints=web"
+            - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+            # Uncomment this label if your Traefik instance is using a specific Docker network and replace the network name 
+            # This is not necessary if you set your default network in Traefik config/parameters
+            # - "traefik.docker.network=your-traefik-network-name"
+    my_app:
+        image: my_app:latest
+        container_name: "my_app"
+        hostname: "my_app"
+        restart: always
+        ports: 
+            - "4567:4567"
+
+volumes:
+    portainer_data:
