@@ -1,5 +1,5 @@
 FROM openjdk:8
-COPY build/libs/java-1.0.jar /tmp
-EXPOSE 4567
+COPY services/* /opt/
+EXPOSE 8761 8888
 WORKDIR /tmp
-CMD [ "java", "-jar", "java-1.0.jar" ]
+CMD [ "/opt/start.sh" ]

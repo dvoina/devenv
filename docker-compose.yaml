@@ -60,13 +60,14 @@ services:
             # Uncomment this label if your Traefik instance is using a specific Docker network and replace the network name 
             # This is not necessary if you set your default network in Traefik config/parameters
             # - "traefik.docker.network=your-traefik-network-name"
-    my_app:
-        image: my_app:latest
-        container_name: "my_app"
-        hostname: "my_app"
+    pprod:
+        image: dvoina/java:latest
+        container_name: "pprod"
+        hostname: "pprod"
         restart: always
         ports: 
-            - "4567:4567"
+            - "8761:8761"
+            - "8888:8888"
 
 volumes:
     portainer_data:
